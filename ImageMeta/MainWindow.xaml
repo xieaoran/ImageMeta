@@ -1,0 +1,118 @@
+﻿<telerik:RadRibbonWindow x:Class="ImageMeta.MainWindow"
+                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:local="clr-namespace:ImageMeta"
+                         xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                         xmlns:converters="clr-namespace:ImageMeta.Converters"
+                         mc:Ignorable="d"
+                         Title="MainWindow" Width="1280" Height="720">
+    <telerik:RadRibbonWindow.Resources>
+        <converters:ColorToHexConverter x:Key="ColorToHexConverter" />
+        <telerik:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+    </telerik:RadRibbonWindow.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <telerik:RadRibbonView Grid.Row="0" MinimizeButtonVisibility="Visible">
+            <telerik:RadRibbonTab Header="图片">
+                <telerik:RadRibbonGroup Header="文件操作">
+                    <telerik:RadRibbonButton Content="打开图片" Size="Large"
+                                             LargeImage="Assets/Icons/Open.png"
+                                             VerticalContentAlignment="Center" Click="OpenImage" />
+                    <telerik:RadRibbonButton Content="保存图片" Size="Large"
+                                             LargeImage="Assets/Icons/Save.png"
+                                             VerticalContentAlignment="Center" Click="SaveImage" />
+                    <telerik:RadRibbonButton Content="打开压缩格式" Size="Large"
+                                             LargeImage="Assets/Icons/Open.png"
+                                             VerticalContentAlignment="Center" Click="OpenCompressed" />
+                    <telerik:RadRibbonButton Content="保存为压缩格式" Size="Large"
+                                             LargeImage="Assets/Icons/SaveCompressed.png"
+                                             VerticalContentAlignment="Center" Click="SaveCompressed" />
+                </telerik:RadRibbonGroup>
+            </telerik:RadRibbonTab>
+        </telerik:RadRibbonView>
+        <telerik:RadDocking Grid.Row="1">
+            <telerik:RadDocking.DocumentHost>
+                <telerik:RadSplitContainer>
+                    <telerik:RadPaneGroup>
+                        <telerik:RadPane Header="图片" CanUserClose="False">
+                            <Image x:Name="ImageRenderArea" Source="{Binding ImageSource, Mode=OneWay}" />
+                        </telerik:RadPane>
+                    </telerik:RadPaneGroup>
+                </telerik:RadSplitContainer>
+            </telerik:RadDocking.DocumentHost>
+            <telerik:RadSplitContainer InitialPosition="DockedRight" Orientation="Vertical" Width="300">
+                <telerik:RadPaneGroup>
+                    <telerik:RadPane Header="特征色提取" CanUserClose="False">
+                        <StackPanel Orientation="Vertical">
+                            <Grid Margin="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.5*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="特征色数量" Grid.Column="0" VerticalAlignment="Center" />
+                                <Slider x:Name="MetaCountSlider" Grid.Column="2" VerticalAlignment="Center"
+                                        Value="{Binding MetaCount, Mode=TwoWay}"
+                                        Maximum="20" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True" />
+                                <TextBlock Grid.Column="4"
+                                           Text="{Binding Value, ElementName=MetaCountSlider, Mode=OneWay}" />
+                            </Grid>
+                            <Grid Margin="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.5*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="最大允许误差" Grid.Column="0" VerticalAlignment="Center" />
+                                <Slider x:Name="MetaErrorSlider" Grid.Column="2" VerticalAlignment="Center"
+                                        Value="{Binding MaxError, Mode=TwoWay}"
+                                        Maximum="255" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True" />
+                                <TextBlock Grid.Column="4"
+                                           Text="{Binding Value, ElementName=MetaErrorSlider, Mode=OneWay}" />
+                            </Grid>
+                            <Button Width="70" Content="提取" HorizontalAlignment="Left" Click="GetMetaColors"
+                                    Margin="10" />
+                            <TextBlock Text="特征色" Margin="10" />
+                            <telerik:RadColorPaletteView x:Name="MetaColorsView" Palette="None" Margin="10" />
+                            <StackPanel Orientation="Horizontal" Margin="10">
+                                <TextBlock Text="颜色代码" Margin="0,0,10,0" VerticalAlignment="Center" />
+                                <TextBox IsReadOnly="True" VerticalAlignment="Center"
+                                         Text="{Binding SelectedItem, ElementName=MetaColorsView, Mode=OneWay,
+                                                Converter={StaticResource ColorToHexConverter}}"
+                                         Foreground="{Binding SelectedItem, ElementName=MetaColorsView, Mode=OneWay,
+                                                Converter={StaticResource ColorToBrushConverter}}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </telerik:RadPane>
+                </telerik:RadPaneGroup>
+                <telerik:RadPaneGroup>
+                    <telerik:RadPane Header="属性" CanUserClose="False">
+                        <telerik:RadPropertyGrid x:Name="ImageProperties" AutoGeneratePropertyDefinitions="False"
+                                                 DescriptionPanelVisibility="Collapsed"
+                                                 LabelColumnWidth="0.5*" Item="{Binding Properties, Mode=OneWay}"
+                                                 IsReadOnly="True">
+                            <telerik:RadPropertyGrid.PropertyDefinitions>
+                                <telerik:PropertyDefinition Binding="{Binding PixelWidth}" DisplayName="宽度" />
+                                <telerik:PropertyDefinition Binding="{Binding PixelHeight}" DisplayName="高度" />
+                                <telerik:PropertyDefinition Binding="{Binding DpiX}" DisplayName="DPI(X)" />
+                                <telerik:PropertyDefinition Binding="{Binding DpiY}" DisplayName="DPI(Y)" />
+                            </telerik:RadPropertyGrid.PropertyDefinitions>
+                        </telerik:RadPropertyGrid>
+                    </telerik:RadPane>
+                    <telerik:RadPane Header="EXIF 信息" CanUserClose="False">
+                        <telerik:RadTreeView x:Name="ExifTree"/>
+                    </telerik:RadPane>
+                </telerik:RadPaneGroup>
+            </telerik:RadSplitContainer>
+        </telerik:RadDocking>
+    </Grid>
+</telerik:RadRibbonWindow>
